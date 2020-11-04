@@ -1,0 +1,107 @@
+# Setup new machine
+# ====================
+
+# Install Ubuntu
+
+
+# Install Docker Docker-Compose
+# =============================
+
+sudo apt update
+sudo apt install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+sudo apt update
+apt-cache policy docker-ce
+sudo apt install docker-ce
+sudo systemctl status docker
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.XX.X/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+
+# === Create Directory Structure
+# ==============================
+sudo mkdir /configurations
+sudo mkdir /configurations/plex
+sudo mkdir /configurations/tautulli
+sudo mkdir /configurations/jellyfin
+sudo mkdir /configurations/mylar
+sudo mkdir /configurations/lazylibrarian
+sudo mkdir /configurations/sabnzbd
+sudo mkdir /configurations/hydra
+sudo mkdir /configurations/sonarr
+sudo mkdir /configurations/radarr
+sudo mkdir /configurations/lidarr
+sudo mkdir /configurations/tdarr
+sudo mkdir /configurations/grafana
+sudo chown -R localadmin:localadmin /configurations/
+sudo mkdir /downloads
+sudo chown localadmin:localadmin /downloads
+sudo mkdir /docker
+sudo chown localadmin:localadmin /docker
+sudo mkdir /media/content
+sudo mkdir /media/backup
+
+# Install CIFS Tools
+# ==================
+sudo apt-get install cifs-utils
+
+# Edit /etc/fstab, add to end
+# ===============
+//192.168.1.20/Media /media/content cifs credentials=/home/localadmin/.smbcredentials,noserverino,iocharset=utf8,gid=1000,uid=1000,file_mode=0777,dir_mode=0777 0 0
+//192.168.1.20/Media/Backup /media/backup cifs credentials=/home/localadmin/.smbcredentials,iocharset=utf8,gid=1000,uid=1000,file_mode=0777,dir_mode=0777 0 0
+
+# Create /.smbcredentials
+# =======================
+username=htpc
+password=V4JHjPdAFnQik5HJ48mY
+
+
+# Mount Drives
+# ============
+
+sudo mount -a
+
+# Share Folders
+# =============
+
+# Install Samba
+# =============
+sudo apt install samba
+sudo smbpasswd -a localadmin
+
+# Edit /etc/samba/smb.conf
+# ========================
+
+[configurations]
+        comment = Configurations
+        path = /configurations
+        browseable = Yes
+        public = yes
+        writable = yes
+        valid users = localadmin
+
+[docker]
+        comment = Docker Configurations
+        path = /docker
+        browseable = Yes
+        public = yes
+        writable = yes
+        valid users = localadmin
+
+[downloads]
+        comment = HTPC Downloads
+        path = /downloads
+        browseable = Yes
+        public = yes
+        writable = yes
+        valid users = localadmin
+
+# Restart the services
+# ====================
+sudo systemctl enable smbd
+sudo systemctl start smbd
+sudo systemctl enable nmbd
+sudo systemctl start nmbd
+
+

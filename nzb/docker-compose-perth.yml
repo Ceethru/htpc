@@ -12,7 +12,6 @@ services:
       - "${MEDIA_VOLUME}/audio:/data/audio"
     network_mode: host
     environment:
-      VERSION: latest
       ADVERTISE_IP: http://${SERVERIP}:32400/
       PLEX_UID: ${UID}
       PLEX_GUID: ${GUID}      
@@ -169,31 +168,6 @@ services:
       - "traefik.port=5299"
       - "traefik.docker.network=traefik_proxy"
     restart: unless-stopped
-
-  mylar:
-      image: linuxserver/mylar
-      container_name: mylar
-      depends_on:
-        - sabnzbd
-        - hydra
-      volumes:
-        - "${CONFIG_VOLUME}/mylar:/config"
-        - "${DOWNLOAD_VOLUME}/complete:/downloads"
-        - "${MEDIA_VOLUME}/books:/media/books"
-      ports:
-        - 8090:8090
-        - ${MYLAR_PORT}:${MYLAR_PORT}
-      environment:
-        PUID: ${UID}
-        PGID: ${GUID}
-        TZ: ${TZ}
-      labels:
-        - "traefik.enable=true"
-        - "traefik.backend=mylar"
-        - "traefik.frontend.rule=Host:mylar.${DOMAINNAME}"
-        - "traefik.port=5299"
-        - "traefik.docker.network=traefik_proxy"
-      restart: unless-stopped
 
   hydra:
     image: linuxserver/hydra
